@@ -1,0 +1,40 @@
+BRAND_SYSTEM = {
+  "identity": {
+    "name": "Day One Digital",
+    "tone": ["authoritative", "ROI-focused", "high-end", "urgent"],
+    "avoid": ["playful", "startup-y", "generic marketing jargon"]
+  },
+
+  "colors": {
+    "primary_bg": "#192945",
+    "secondary": "#595da1",
+    "accent": "#a981b0",
+    "cta": "#e8a3a2"
+  },
+
+  "typography": {
+    "heading": "Playfair Display",
+    "body": "Inter",
+    "tracking": "-0.02em",
+    "line_height": 1.6
+  },
+
+  "ui_style": {
+    "background": "matte_dark_with_3pct_noise",
+    "cards": "liquid_glass",
+    "glass_edge": "1px rgba(255,255,255,0.15)",
+    "shadows": "soft_multi_layer"
+  },
+
+  "iconography": {
+    "stroke": "1-1.5px",
+    "style": "outline_only",
+    "colors": ["#a981b0", "#e8a3a2"]
+  },
+
+  "motion": {
+    "transitions": "transform_opacity_only",
+    "entrance": "staggered_fade_up",
+    "hover": ["magnetic_button", "subtle_3d_tilt"]
+  }
+}
