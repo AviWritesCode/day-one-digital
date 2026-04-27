@@ -1,4 +1,8 @@
-export default function Footer() {
+import Reveal from './Reveal'
+import logo from '../assets/DayOneDigital_WordsOnly.png'
+
+export default function Footer({ view = 'desktop' }) {
+  const isDesktop = view === 'desktop'
   const year = new Date().getFullYear()
 
   const links = {
@@ -8,71 +12,103 @@ export default function Footer() {
   }
 
   return (
-    <footer className="relative overflow-hidden" style={{ background: '#0f1c30', borderTop: '1px solid rgba(255,255,255,0.07)' }} role="contentinfo">
-      <div className="section-container py-16 lg:py-20">
-        <div className="grid lg:grid-cols-5 gap-10 lg:gap-8 mb-16">
-          {/* Brand */}
-          <div className="lg:col-span-2">
-            <a href="/" className="flex items-center mb-5" aria-label="Day One Digital">
+    <footer 
+      id="footer" 
+      className={isDesktop ? "relative h-screen w-screen flex-shrink-0 flex items-center justify-center overflow-hidden" : "relative w-full flex flex-col items-center justify-center py-24 overflow-hidden"} 
+      role="contentinfo"
+    >
+      
+      {/* Giant Branding Logo Background */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden">
+        <img 
+          src={logo} 
+          alt="" 
+          className="w-[120%] h-auto object-contain opacity-[0.05] grayscale brightness-200 contrast-125 scale-150 rotate-[-5deg]"
+          style={{ filter: 'grayscale(100%) brightness(200%) opacity(0.06)' }}
+        />
+      </div>
+
+      <div className={`section-container relative z-10 w-full px-6 lg:px-24 flex ${isDesktop ? 'flex-col lg:flex-row items-center justify-between gap-12 lg:gap-32 h-[calc(100vh-var(--nav-height))] mt-[var(--nav-height)]' : 'flex-col items-center justify-center gap-16 max-w-screen-xl mx-auto'}`}>
+        
+        {/* Brand Block */}
+        <div className={`max-w-md ${isDesktop ? 'text-center lg:text-left' : 'text-center flex flex-col items-center'}`}>
+          <Reveal delay={100}>
+            <a href="/" className="inline-block mb-8" aria-label="Day One Digital">
               <img 
-                src="/src/assets/DayOneDigital_WordsOnly.png" 
+                src={logo} 
                 alt="Day One Digital" 
-                className="h-8 w-auto object-contain"
+                className="h-12 lg:h-16 w-auto object-contain brightness-200"
               />
             </a>
-            <p className="font-body text-sm text-white/45 leading-brand max-w-xs mb-6">
-              ROI-driven SEO and performance marketing for ambitious brands. We build revenue systems that compound.
+          </Reveal>
+          <Reveal delay={200}>
+            <p className="font-body text-lg lg:text-xl text-white/40 leading-brand mb-12">
+              Building revenue systems that compound. ROI-driven marketing for the digital elite.
             </p>
-            <div className="flex items-center gap-3">
-              {[
-                { label: 'LinkedIn', href: '#', icon: <LinkedInIcon /> },
-                { label: 'Twitter', href: '#', icon: <TwitterIcon /> },
-                { label: 'Email', href: 'mailto:hello@dayonedigital.com', icon: <EmailIcon /> },
-              ].map((social) => (
+          </Reveal>
+          
+          <div className={`flex items-center gap-6 ${isDesktop ? 'justify-center lg:justify-start' : 'justify-center'}`}>
+            {[
+              { label: 'LinkedIn', href: '#', icon: <LinkedInIcon /> },
+              { label: 'Twitter', href: '#', icon: <TwitterIcon /> },
+              { label: 'Email', href: 'mailto:hello@dayonedigital.com', icon: <EmailIcon /> },
+            ].map((social, i) => (
+              <Reveal key={social.label} delay={300 + i * 100}>
                 <a
-                  key={social.label}
                   href={social.href}
                   aria-label={social.label}
-                  className="w-9 h-9 rounded-full flex items-center justify-center text-white/40 hover:text-white/80 hover:bg-white/8 transition-all duration-200"
-                  style={{ border: '1px solid rgba(255,255,255,0.1)' }}
+                  className="w-12 h-12 rounded-full flex items-center justify-center text-white/30 hover:text-brand-cta hover:bg-white/5 transition-all duration-300 border border-white/10"
                 >
                   {social.icon}
                 </a>
-              ))}
-            </div>
+              </Reveal>
+            ))}
           </div>
+        </div>
 
-          {/* Link columns */}
-          {Object.entries(links).map(([col, items]) => (
-            <div key={col}>
-              <h4 className="font-body text-xs font-semibold text-white/40 uppercase tracking-widest mb-5">{col}</h4>
-              <ul className="flex flex-col gap-3">
-                {items.map((item) => (
-                  <li key={item}>
-                    <a href="#" className="font-body text-sm text-white/50 hover:text-white transition-colors duration-200 hover-underline">
-                      {item}
-                    </a>
-                  </li>
-                ))}
-              </ul>
+        {/* Links Grid */}
+        <div className={`flex flex-wrap lg:flex-nowrap gap-8 lg:gap-24 items-start ${isDesktop ? 'justify-center lg:justify-start' : 'justify-center w-full'}`}>
+          {Object.entries(links).map(([col, items], i) => (
+            <div 
+              key={col} 
+              className="min-w-[140px] lg:min-w-[180px]"
+              style={isDesktop ? { transform: `translateY(${i * 20}px)` } : {}}
+            >
+              <Reveal delay={400 + i * 150}>
+                <h4 className="font-heading text-xs lg:text-sm font-bold text-white uppercase tracking-[0.2em] mb-6 lg:mb-8 opacity-30">{col}</h4>
+                <ul className="flex flex-col gap-4 lg:gap-5">
+                  {items.map((item) => (
+                    <li key={item}>
+                      <a href="#" className="font-body text-sm lg:text-base text-white/40 hover:text-white transition-all duration-300 block">
+                        {item}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </Reveal>
             </div>
           ))}
         </div>
 
-        <hr className="divider mb-8" />
-
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="font-body text-xs text-white/25">
-            © {year} Day One Digital. All rights reserved.
-          </p>
-          <div className="flex items-center gap-6">
-            {['Privacy Policy', 'Terms of Service', 'Cookie Policy'].map((item) => (
-              <a key={item} href="#" className="font-body text-xs text-white/25 hover:text-white/50 transition-colors duration-200">
-                {item}
-              </a>
-            ))}
-          </div>
+        {/* Copyright Footer (Mobile optimization) */}
+        <div className="lg:absolute lg:bottom-12 lg:left-24 mt-12 lg:mt-0 flex flex-col lg:flex-row items-center gap-4 lg:gap-8">
+           <Reveal delay={800}>
+            <p className="font-body text-[10px] text-white/20 uppercase tracking-[0.3em]">
+              © {year} Day One Digital
+            </p>
+          </Reveal>
+          <div className="hidden lg:block w-12 h-[1px] bg-white/10" />
+          <Reveal delay={900}>
+            <div className="flex items-center gap-6">
+              {['Privacy', 'Terms'].map((item) => (
+                <a key={item} href="#" className="font-body text-[10px] text-white/20 uppercase tracking-[0.3em] hover:text-white/40">
+                  {item}
+                </a>
+              ))}
+            </div>
+          </Reveal>
         </div>
+
       </div>
     </footer>
   )

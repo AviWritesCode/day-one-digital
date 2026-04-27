@@ -74,30 +74,113 @@ function ServiceIcon({ type }) {
   }
 }
 
-export default function Services() {
+import { useState, useEffect, useRef } from 'react'
+import Reveal from './Reveal'
+
+export default function Services({ view = 'desktop' }) {
+  const [isPaused, setIsPaused] = useState(false)
+  const requestRef = useRef()
+  const previousTimeRef = useRef()
+  const containerRef = useRef(null)
+  const offsetRef = useRef(0)
+  const isPausedRef = useRef(false)
+  const loopHeightRef = useRef(0)
+
+  // Triplicate for seamless loop
+  const triplicatedServices = [...SERVICES, ...SERVICES, ...SERVICES]
+
+  useEffect(() => {
+    isPausedRef.current = isPaused
+  }, [isPaused])
+
+  useEffect(() => {
+    // Calculate exact height of one set of services for perfect looping
+    if (containerRef.current) {
+      const children = containerRef.current.children
+      let totalHeight = 0
+      for (let i = 0; i < SERVICES.length; i++) {
+        if (children[i]) {
+          // height + gap (which is 2rem / 32px based on flex-col gap-8)
+          totalHeight += children[i].getBoundingClientRect().height + 32
+        }
+      }
+      loopHeightRef.current = totalHeight
+    }
+  }, [])
+
+  const animate = time => {
+    if (previousTimeRef.current !== undefined && !isPausedRef.current && loopHeightRef.current > 0) {
+      const deltaTime = time - previousTimeRef.current
+      // Move 40px per second
+      offsetRef.current += deltaTime * 0.04
+      if (containerRef.current) {
+        containerRef.current.style.transform = `translate3d(0, -${offsetRef.current % loopHeightRef.current}px, 0)`
+      }
+    }
+    previousTimeRef.current = time
+    requestRef.current = requestAnimationFrame(animate)
+  }
+
+  useEffect(() => {
+    requestRef.current = requestAnimationFrame(animate)
+    return () => cancelAnimationFrame(requestRef.current)
+  }, [])
+
   return (
-    <section id="services" className="py-24 lg:py-32 relative overflow-hidden">
-      <div className="absolute inset-0 bg-grid opacity-30 pointer-events-none" />
-      <div className="section-container relative z-10">
-        <div className="text-center mb-16 lg:mb-20">
-          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold font-body uppercase tracking-widest text-brand-accent border border-brand-accent/20 mb-6">
-            <span className="w-1 h-1 rounded-full bg-brand-accent" />
-            What We Do
-          </span>
-          <h2 className="font-heading text-4xl lg:text-6xl font-bold text-white tracking-brand leading-tight">
-            Every Service Built for{' '}
-            <span className="text-gradient">Revenue</span>
-          </h2>
-          <p className="mt-6 font-body text-white/55 text-lg max-w-xl mx-auto leading-brand">
-            No fluff. No vanity metrics. Every engagement is tied to business outcomes and bottom-line growth.
-          </p>
+    <section id="services" className={
+      view === 'desktop'
+        ? "relative h-screen w-screen flex-shrink-0 flex items-center justify-center overflow-hidden"
+        : "relative min-h-[100svh] w-full flex items-center justify-center overflow-hidden py-24"
+    }>
+      <div className={
+        view === 'desktop'
+          ? "section-container relative z-10 w-full h-full flex flex-col lg:flex-row items-center gap-16 lg:gap-32 px-10 lg:px-20 justify-center pt-[var(--nav-height)]"
+          : "section-container relative z-10 w-full h-full flex flex-col gap-12 px-6 lg:px-20 justify-center"
+      }>
+        <div className="w-full lg:w-[40%] text-left">
+          <Reveal delay={100}>
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold font-body uppercase tracking-widest text-brand-accent border border-brand-accent/20 mb-6">
+              <span className="w-1 h-1 rounded-full bg-brand-accent" />
+              Vertical Scale
+            </span>
+          </Reveal>
+          <Reveal delay={200}>
+            <h2 className="font-heading text-4xl lg:text-7xl font-bold text-white tracking-brand leading-[1.1]">
+              Built for <br />
+              <span className="text-gradient">Revenue</span>
+            </h2>
+          </Reveal>
+          <Reveal delay={300}>
+            <p className="mt-8 font-body text-white/55 text-lg leading-brand max-w-md">
+              No fluff. Every engagement is tied to bottom-line growth. Our cascading methodology ensures every layer of your business is optimized.
+            </p>
+          </Reveal>
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {SERVICES.map((svc, i) => (
-            <ServiceCard key={svc.id} svc={svc} index={i} />
-          ))}
-        </div>
+        {view === 'desktop' ? (
+          <div 
+            className="absolute right-[-2%] top-0 bottom-0 w-full lg:w-[42%] overflow-hidden flex justify-center translate-x-4 lg:translate-x-12"
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
+          >
+            <div 
+              ref={containerRef}
+              className="flex flex-col gap-8 transition-transform duration-100 ease-linear will-change-transform"
+            >
+              {triplicatedServices.map((svc, i) => (
+                <div key={`${svc.id}-${i}`} className="w-full max-w-[340px]">
+                  <ServiceCard svc={svc} index={i} />
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6 relative z-20">
+            {SERVICES.map((svc, i) => (
+              <ServiceCard key={svc.id} svc={svc} index={i} />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   )

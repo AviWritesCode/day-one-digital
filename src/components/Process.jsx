@@ -48,58 +48,72 @@ function StepIcon({ type }) {
   }
 }
 
-export default function Process() {
+import Reveal from './Reveal'
+
+export default function Process({ view = 'desktop' }) {
+  const isDesktop = view === 'desktop'
   return (
-    <section id="process" className="py-24 lg:py-32 relative overflow-hidden">
-      <div className="absolute inset-0 bg-grid opacity-20 pointer-events-none" />
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full opacity-10 pointer-events-none"
-        style={{ background: 'radial-gradient(circle, #a981b0 0%, transparent 70%)', filter: 'blur(80px)' }}
-      />
-
-      <div className="section-container relative z-10">
-        <div className="text-center mb-16 lg:mb-20">
-          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold font-body uppercase tracking-widest text-brand-accent border border-brand-accent/20 mb-6">
-            <span className="w-1 h-1 rounded-full bg-brand-accent" />
-            How We Work
-          </span>
-          <h2 className="font-heading text-4xl lg:text-6xl font-bold text-white tracking-brand">
-            The Day One{' '}
-            <span className="text-gradient">Process</span>
-          </h2>
-          <p className="mt-4 font-body text-white/55 text-lg max-w-lg mx-auto leading-brand">
-            A proven four-stage system that transforms your digital presence into a revenue engine.
-          </p>
+    <section 
+      id="process" 
+      className={isDesktop ? "relative h-screen w-[100vw] flex-shrink-0 flex items-center justify-center overflow-hidden" : "relative min-h-screen w-full flex flex-col items-center justify-center py-24 overflow-hidden"}
+    >
+      <div className={`section-container relative z-10 w-full ${isDesktop ? 'h-full flex flex-col justify-center px-10 lg:px-20 pt-[var(--nav-height)]' : 'max-w-screen-xl mx-auto px-6 flex flex-col justify-center'}`}>
+        
+        <div className={`mb-8 relative z-20 ${isDesktop ? '' : 'px-4'}`}>
+          <Reveal delay={100}>
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold font-body uppercase tracking-widest text-brand-accent border border-brand-accent/20 mb-6">
+              <span className="w-1 h-1 rounded-full bg-brand-accent" />
+              The Flow
+            </span>
+          </Reveal>
+          <Reveal delay={200}>
+            <h2 className="font-heading text-4xl lg:text-5xl font-bold text-white tracking-brand leading-tight">
+              Day <span className="text-gradient">One</span> <br /> Process
+            </h2>
+          </Reveal>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-6">
-          {STEPS.map((step, i) => (
-            <ProcessCard key={step.num} step={step} index={i} />
-          ))}
-        </div>
-
-        <div className="mt-16 glass-card-lg p-8 lg:p-12 text-center relative overflow-hidden">
-          <div className="absolute inset-0 opacity-10 pointer-events-none"
-            style={{ background: 'linear-gradient(135deg, #595da1 0%, #a981b0 50%, #e8a3a2 100%)' }}
-          />
-          <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold font-body uppercase tracking-widest text-brand-cta border border-brand-cta/20 mb-4">
-            Ready to start?
-          </span>
-          <h3 className="font-heading text-3xl lg:text-4xl font-bold text-white tracking-brand mb-4">
-            Your Day One starts today.
-          </h3>
-          <p className="font-body text-white/55 mb-8 max-w-md mx-auto leading-brand">
-            Book a strategy session and get a full competitive analysis on us.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="#contact" id="process-cta-btn" className="btn-cta">
-              Start Growing Today
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-                <path d="M1 7H13M13 7L8 2M13 7L8 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        {/* Horizontal Flow Container */}
+        <div className={`relative w-full flex-1 flex flex-col justify-center ${isDesktop ? 'min-h-0' : 'mt-12'}`}>
+          
+          {/* Animated Connector Line - Simplified for responsiveness */}
+          {isDesktop && (
+            <div className="absolute inset-0 w-full h-full pointer-events-none z-0 opacity-20 flex items-center justify-center">
+              <svg className="w-full h-[100px]" preserveAspectRatio="none">
+                <path
+                  d="M 0 50 C 250 50, 250 20, 500 50 S 750 80, 1000 50"
+                  fill="none"
+                  stroke="url(#flowGrad)"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+                <defs>
+                  <linearGradient id="flowGrad" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stopColor="#a981b0" />
+                    <stop offset="100%" stopColor="#e8a3a2" />
+                  </linearGradient>
+                </defs>
               </svg>
-            </a>
-            <a href="#results" id="process-results-btn" className="btn-ghost">
-              See Results First
-            </a>
+            </div>
+          )}
+
+          {/* Flow Cards */}
+          <div className={`grid ${isDesktop ? 'grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6' : 'grid-cols-1 md:grid-cols-2 gap-6'} relative z-10 w-full px-4 items-center justify-center mx-auto`}>
+            {STEPS.map((step, i) => {
+              const offsets = isDesktop ? ['-15px', '15px', '-15px', '15px'] : ['0px', '0px', '0px', '0px'] // Minimal vertical offsets
+              
+              return (
+                <div 
+                  key={step.num}
+                  className={isDesktop ? "w-full max-w-[240px] mx-auto" : "w-full"}
+                  style={{ transform: `translateY(${offsets[i]})` }}
+                >
+                  <Reveal delay={200 + i * 150}>
+                    <ProcessCard step={step} />
+                  </Reveal>
+                </div>
+              )
+            })}
           </div>
         </div>
       </div>
@@ -109,24 +123,21 @@ export default function Process() {
 
 function ProcessCard({ step }) {
   return (
-    <div className="glass-card p-8 flex gap-6 group hover:scale-[1.02] transition-all duration-400 cursor-pointer">
-      <div className="flex-shrink-0">
+    <div className="glass-card p-5 lg:p-6 flex flex-col gap-3 lg:gap-4 group hover:scale-[1.05] transition-all duration-500 cursor-pointer relative z-10">
+      <div className="flex items-center justify-between">
         <div
-          className="w-14 h-14 rounded-2xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110"
+          className="w-10 h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3"
           style={{ background: `${step.color}15`, border: `1px solid ${step.color}25` }}
         >
-          <span style={{ color: step.color }}>
+          <span style={{ color: step.color }} className="scale-90 lg:scale-100">
             <StepIcon type={step.iconType} />
           </span>
         </div>
+        <span className="font-body text-[10px] text-white/20 number-accent font-bold">{step.num}</span>
       </div>
-      <div className="flex-1">
-        <div className="flex items-center gap-3 mb-3">
-          <span className="font-body text-xs text-white/20 number-accent font-semibold">{step.num}</span>
-          <div className="h-px flex-1 bg-white/8" />
-        </div>
-        <h3 className="font-heading text-xl font-semibold text-white tracking-brand mb-3">{step.title}</h3>
-        <p className="font-body text-sm text-white/55 leading-brand">{step.description}</p>
+      <div>
+        <h3 className="font-heading text-base lg:text-lg font-semibold text-white tracking-brand mb-1 lg:mb-2">{step.title}</h3>
+        <p className="font-body text-[11px] lg:text-xs text-white/55 leading-brand">{step.description}</p>
       </div>
     </div>
   )

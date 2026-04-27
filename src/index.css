@@ -16,6 +16,13 @@
     --brand-cta:       #e8a3a2;
     --glass-edge:      1px solid rgba(255,255,255,0.15);
     --noise-opacity:   0.03;
+    --nav-height:      32px;
+  }
+
+  @media (min-width: 1024px) {
+    :root {
+      --nav-height: 80px;
+    }
   }
 
   html {
@@ -25,10 +32,25 @@
   }
 
   body {
-    @apply bg-brand-bg text-white font-body overflow-x-hidden;
-    background-color: #192945;
-    /* Matte dark with ~3% noise texture */
+    @apply bg-[#0a0a1a] text-white font-body overflow-x-hidden;
+    /* Prevent accidental vertical content movement */
+    overflow-y: auto;
+    overscroll-behavior-y: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  }
+
+  section {
+    scroll-margin-top: var(--nav-height);
+  }
+
+  /* Utility for surprisingly staggered reveal */
+  .stagger-float {
+    animation: staggerFloat 6s ease-in-out infinite alternate;
+  }
+
+  @keyframes staggerFloat {
+    from { transform: translateY(0) rotate(0deg); }
+    to { transform: translateY(-20px) rotate(1deg); }
   }
 
   * {
@@ -200,6 +222,48 @@
     margin: 0;
   }
 }
+
+  /* Liquid Glass Texture for Modals */
+  .liquid-glass {
+    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.02) 100%);
+    border: 1px solid rgba(255,255,255,0.2);
+    box-shadow: 0 40px 100px rgba(0,0,0,0.6), inset 0 0 20px rgba(255,255,255,0.05);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+  }
+
+  /* Swoosh animation for modals */
+  .animate-swoosh {
+    animation: swoosh 0.77s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+  }
+
+  @keyframes swoosh {
+    0% { opacity: 0; transform: scale(0.8) translateY(40px) rotate(-2deg); }
+    100% { opacity: 1; transform: scale(1) translateY(0) rotate(0); }
+  }
+
+  /* Pixel Reveal Keyframe */
+  @keyframes pixel-out {
+    0% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(0); }
+  }
+
+  /* Float animations */
+  .animate-float-top {
+    animation: floatInTop 1.2s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+  }
+  .animate-float-bottom {
+    animation: floatInBottom 1.2s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+  }
+
+  @keyframes floatInTop {
+    0% { opacity: 0; transform: translateY(-100px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes floatInBottom {
+    0% { opacity: 0; transform: translateY(100px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
 
 /* ========================
    KEYFRAMES 

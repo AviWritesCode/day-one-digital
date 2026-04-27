@@ -1,24 +1,52 @@
 import { useState, useEffect, useRef } from 'react'
+import Reveal from './Reveal'
 import heroBackground from '../assets/HeroBackground.svg'
 import heroCheckmarks from '../assets/Hero_CheckmarksVertical.svg'
 import heroBanner from '../assets/Hero_BackgroundBanner.svg'
 
-export default function Hero() {
+export default function Hero({ view = 'desktop' }) {
   const [email, setEmail] = useState('')
   const [submitted, setSubmitted] = useState(false)
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
   const heroRef = useRef(null)
+  const bgParallaxRef = useRef(null)
+  const dashboardParallaxRef = useRef(null)
+
+  const heroRectRef = useRef({ left: 0, top: 0, width: window.innerWidth, height: window.innerHeight })
 
   useEffect(() => {
+    const updateRect = () => {
+      if (heroRef.current) {
+        heroRectRef.current = heroRef.current.getBoundingClientRect()
+      }
+    }
+    updateRect()
+    window.addEventListener('resize', updateRect)
+
+    let rafId
     const handler = (e) => {
-      if (!heroRef.current) return
-      const { left, top, width, height } = heroRef.current.getBoundingClientRect()
-      const x = (e.clientX - left - width / 2) / width
-      const y = (e.clientY - top - height / 2) / height
-      setMousePos({ x, y })
+      if (rafId) return // throttle
+      rafId = requestAnimationFrame(() => {
+        const { left, top, width, height } = heroRectRef.current
+        const x = (e.clientX - left - width / 2) / width
+        const y = (e.clientY - top - height / 2) / height
+        
+        if (bgParallaxRef.current) {
+          bgParallaxRef.current.style.transform = `translate(${x * -20}px, ${y * -15}px)`
+        }
+        if (dashboardParallaxRef.current) {
+          dashboardParallaxRef.current.style.transform = `translate(${x * 6}px, ${y * 6}px)`
+        }
+        
+        rafId = null
+      })
     }
     window.addEventListener('mousemove', handler, { passive: true })
-    return () => window.removeEventListener('mousemove', handler)
+    
+    return () => {
+      window.removeEventListener('resize', updateRect)
+      window.removeEventListener('mousemove', handler)
+      if (rafId) cancelAnimationFrame(rafId)
+    }
   }, [])
 
   const handleSubmit = (e) => {
@@ -30,50 +58,42 @@ export default function Hero() {
     <section
       ref={heroRef}
       id="hero"
-      className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden"
-      style={{ background: 'linear-gradient(180deg, #0f1c30 0%, #192945 40%, #1a2d52 100%)' }}
+      className={
+        view === 'desktop'
+          ? "relative h-screen w-screen flex-shrink-0 flex items-center justify-center overflow-hidden"
+          : "relative min-h-[100svh] w-full flex items-center justify-center overflow-hidden pt-32 pb-16"
+      }
     >
-      {/* Background SVG */}
+      {/* Background SVG - Parallax logic already here */}
       <div
-        className="absolute inset-0 opacity-40 pointer-events-none"
+        ref={bgParallaxRef}
+        className="absolute inset-0 opacity-20 pointer-events-none will-change-transform"
         style={{
-          transform: `translate(${mousePos.x * -12}px, ${mousePos.y * -8}px)`,
           transition: 'transform 0.6s cubic-bezier(0.23, 1, 0.32, 1)',
         }}
       >
         <img src={heroBackground} alt="" className="w-full h-full object-cover" loading="eager" />
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 opacity-30 pointer-events-none">
-        <img src={heroBanner} alt="" className="w-full" loading="lazy" />
-      </div>
+      <div className="absolute top-1/4 -left-20 w-[60vw] h-[60vw] rounded-full opacity-10 blur-[120px] pointer-events-none" style={{ background: 'radial-gradient(circle, #a981b0 0%, transparent 70%)' }} />
 
-      <div className="absolute inset-0 bg-grid opacity-60 pointer-events-none" />
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-brand-bg/80 pointer-events-none" />
-
-      <div
-        className="absolute top-0 right-0 w-96 h-96 rounded-full opacity-20 pointer-events-none"
-        style={{
-          background: 'radial-gradient(circle, #595da1 0%, transparent 70%)',
-          filter: 'blur(60px)',
-          transform: `translate(${mousePos.x * 20}px, ${mousePos.y * 20}px)`,
-          transition: 'transform 0.8s ease',
-        }}
-      />
-
-      <div className="section-container relative z-10 pt-28 pb-16 lg:pt-36 lg:pb-24 w-full">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+      <div className={
+        view === 'desktop'
+          ? "section-container relative z-10 w-full h-full flex flex-col justify-center pt-[var(--nav-height)]"
+          : "section-container relative z-10 w-full h-full flex flex-col justify-center"
+      }>
+        <div className="flex flex-col lg:flex-row gap-16 lg:gap-24 items-center lg:pl-16">
           {/* Left */}
-          <div className="flex flex-col gap-6 lg:gap-8">
-            <div className="animate-fade-up animate-fade-up-1">
+          <div className="flex flex-col gap-6 lg:gap-8 lg:w-1/2 w-full">
+            <Reveal delay={100}>
               <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold font-body uppercase tracking-widest glass-card border border-brand-accent/20 text-brand-accent">
                 <span className="w-1.5 h-1.5 rounded-full bg-brand-cta animate-pulse" />
                 ROI-Driven Digital Marketing
               </span>
-            </div>
+            </Reveal>
 
-            <div className="animate-fade-up animate-fade-up-2">
-              <h1 className="font-heading text-5xl sm:text-6xl lg:text-7xl font-bold leading-[1.05] tracking-brand text-white">
+            <Reveal delay={200}>
+              <h1 className="font-heading text-[clamp(2.5rem,10vw,4.5rem)] sm:text-6xl lg:text-7xl font-bold leading-[1.05] tracking-brand text-white">
                 Turn Every Click Into{' '}
                 <span className="relative inline-block">
                   <span className="text-gradient">Revenue</span>
@@ -87,14 +107,16 @@ export default function Hero() {
                   </svg>
                 </span>
               </h1>
-            </div>
+            </Reveal>
 
-            <p className="animate-fade-up animate-fade-up-3 font-body text-white/60 text-lg lg:text-xl leading-brand max-w-lg">
-              Day One Digital is an authoritative SEO and performance marketing firm.
-              We build revenue systems, not vanity metrics — starting from day one.
-            </p>
+            <Reveal delay={300}>
+              <p className="font-body text-white/60 text-lg lg:text-xl leading-brand max-w-lg">
+                Day One Digital is an authoritative SEO and performance marketing firm.
+                We build revenue systems, not vanity metrics — starting from day one.
+              </p>
+            </Reveal>
 
-            <div className="animate-fade-up animate-fade-up-4">
+            <Reveal delay={400}>
               {!submitted ? (
                 <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md" aria-label="Free SEO audit">
                   <input
@@ -120,85 +142,84 @@ export default function Hero() {
                   </p>
                 </div>
               )}
-            </div>
+            </Reveal>
 
-            <div className="animate-fade-up animate-fade-up-5 flex items-center gap-6">
-              <div className="flex -space-x-2">
-                {['#a981b0','#595da1','#e8a3a2','#7ba7d4'].map((c, i) => (
-                  <div key={i} className="w-8 h-8 rounded-full border-2 border-brand-bg flex items-center justify-center text-xs font-bold text-white" style={{ background: c }}>
-                    {['R','M','J','S'][i]}
-                  </div>
-                ))}
+            <Reveal delay={500}>
+              <div className="flex items-center gap-6">
+                <div className="flex -space-x-2">
+                  {['#a981b0','#595da1','#e8a3a2','#7ba7d4'].map((c, i) => (
+                    <div key={i} className="w-8 h-8 rounded-full border-2 border-brand-bg flex items-center justify-center text-xs font-bold text-white" style={{ background: c }}>
+                      {['R','M','J','S'][i]}
+                    </div>
+                  ))}
+                </div>
+                <p className="font-body text-sm text-white/50">
+                  <span className="text-white/80 font-semibold">200+</span> businesses growing with us
+                </p>
               </div>
-              <p className="font-body text-sm text-white/50">
-                <span className="text-white/80 font-semibold">200+</span> businesses growing with us
-              </p>
-            </div>
+            </Reveal>
           </div>
 
           {/* Right: Dashboard */}
-          <div className="relative flex justify-center lg:justify-end animate-fade-up animate-fade-up-2">
-            <div
-              className="relative w-full max-w-sm lg:max-w-md"
-              style={{
-                transform: `translate(${mousePos.x * 6}px, ${mousePos.y * 6}px)`,
-                transition: 'transform 0.5s cubic-bezier(0.23, 1, 0.32, 1)',
-              }}
-            >
-              <div className="glass-card-lg p-6 lg:p-8">
-                <div className="flex items-center justify-between mb-6">
-                  <div>
-                    <p className="font-body text-xs text-white/40 uppercase tracking-widest mb-1">Revenue Dashboard</p>
-                    <p className="font-heading text-xl font-semibold text-white">Growth Report</p>
+          {view !== 'mobile' && (
+            <div className="relative flex justify-center lg:justify-end w-full lg:w-1/2">
+              <Reveal delay={200}>
+                <div
+                  ref={dashboardParallaxRef}
+                  className="relative w-full max-w-sm lg:max-w-md mx-auto lg:mx-0 will-change-transform"
+                  style={{
+                    transition: 'transform 0.5s cubic-bezier(0.23, 1, 0.32, 1)',
+                  }}
+                >
+                  <div className="glass-card-lg p-6 lg:p-8">
+                    <div className="flex items-center justify-between mb-6">
+                      <div>
+                        <p className="font-body text-xs text-white/40 uppercase tracking-widest mb-1">Revenue Dashboard</p>
+                        <p className="font-heading text-xl font-semibold text-white">Growth Report</p>
+                      </div>
+                      <span className="px-3 py-1.5 rounded-full text-xs font-semibold" style={{ background: 'rgba(169,129,176,0.15)', color: '#e8a3a2', border: '1px solid rgba(232,163,162,0.2)' }}>
+                        Live
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4 mb-6">
+                      <MetricCard label="Organic Traffic" value="+312%" color="#a981b0" />
+                      <MetricCard label="Conv. Rate" value="+87%" color="#e8a3a2" />
+                      <MetricCard label="Revenue" value="+$42K" color="#7ba7d4" />
+                      <MetricCard label="ROI" value="8.4x" color="#595da1" />
+                    </div>
+
+                    <div className="relative h-20 mb-4">
+                      <MiniChart />
+                    </div>
+
+                    <div className="flex items-center justify-between pt-4 border-t border-white/8">
+                      <p className="font-body text-xs text-white/40">Last 90 days vs prior period</p>
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+                        <span className="font-body text-xs text-white/50">Real-time</span>
+                      </div>
+                    </div>
                   </div>
-                  <span className="px-3 py-1.5 rounded-full text-xs font-semibold" style={{ background: 'rgba(169,129,176,0.15)', color: '#e8a3a2', border: '1px solid rgba(232,163,162,0.2)' }}>
-                    Live
-                  </span>
-                </div>
 
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                  <MetricCard label="Organic Traffic" value="+312%" color="#a981b0" />
-                  <MetricCard label="Conv. Rate" value="+87%" color="#e8a3a2" />
-                  <MetricCard label="Revenue" value="+$42K" color="#7ba7d4" />
-                  <MetricCard label="ROI" value="8.4x" color="#595da1" />
-                </div>
+                  <div className="absolute -left-8 top-1/2 -translate-y-1/2 hidden lg:block" style={{ animation: 'float 6s ease-in-out infinite' }}>
+                    <img src={heroCheckmarks} alt="Services checklist" className="w-16 opacity-90" loading="lazy" />
+                  </div>
 
-                <div className="relative h-20 mb-4">
-                  <MiniChart />
-                </div>
-
-                <div className="flex items-center justify-between pt-4 border-t border-white/8">
-                  <p className="font-body text-xs text-white/40">Last 90 days vs prior period</p>
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                    <span className="font-body text-xs text-white/50">Real-time</span>
+                  <div className="absolute -top-4 -right-4 glass-card px-4 py-3 hidden lg:flex items-center gap-2.5" style={{ animation: 'float 6s 1.5s ease-in-out infinite' }}>
+                    <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: 'rgba(232,163,162,0.15)' }}>
+                      <StarIcon />
+                    </div>
+                    <div>
+                      <p className="font-body text-xs text-white/50 leading-none mb-1">New milestone</p>
+                      <p className="font-body text-sm font-semibold text-white leading-none">#1 on Google</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-
-              <div className="absolute -left-8 top-1/2 -translate-y-1/2 hidden lg:block" style={{ animation: 'float 6s ease-in-out infinite' }}>
-                <img src={heroCheckmarks} alt="Services checklist" className="w-16 opacity-90" loading="lazy" />
-              </div>
-
-              <div className="absolute -top-4 -right-4 glass-card px-4 py-3 hidden lg:flex items-center gap-2.5" style={{ animation: 'float 6s 1.5s ease-in-out infinite' }}>
-                <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: 'rgba(232,163,162,0.15)' }}>
-                  <StarIcon />
-                </div>
-                <div>
-                  <p className="font-body text-xs text-white/50 leading-none mb-1">New milestone</p>
-                  <p className="font-body text-sm font-semibold text-white leading-none">#1 on Google</p>
-                </div>
-              </div>
+              </Reveal>
             </div>
-          </div>
+          )}
         </div>
-      </div>
-
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce">
-        <span className="font-body text-xs text-white/30 uppercase tracking-widest">Scroll</span>
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-          <path d="M8 3V13M8 13L4 9M8 13L12 9" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
       </div>
     </section>
   )
